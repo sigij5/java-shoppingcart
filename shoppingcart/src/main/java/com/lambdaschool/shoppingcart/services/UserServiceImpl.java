@@ -46,6 +46,15 @@ public class UserServiceImpl
                 .orElseThrow(() -> new ResourceNotFoundException("User id " + id + " not found!"));
     }
 
+    @Override
+    public User findByUsername(String username){
+        User u = userrepos.findByUsername(username.toLowerCase());
+        if(u == null){
+            throw new ResourceNotFoundException("User name " + username + " not found");
+        }
+        return u;
+    }
+
     @Transactional
     @Override
     public void delete(long id)
@@ -62,6 +71,7 @@ public class UserServiceImpl
         User newUser = new User();
 
         newUser.setUsername(user.getUsername());
+        newUser.setPasswordNoEncrypt(user.getPassword());
         newUser.setComments(user.getComments());
 
         if (user.getCarts()

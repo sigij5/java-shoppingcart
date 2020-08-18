@@ -24,6 +24,8 @@ public interface UserService
      */
     User findUserById(long id);
 
+    User findByUsername(String username);
+
     /**
      * Deletes the user record from the database based off of the provided primary key
      *

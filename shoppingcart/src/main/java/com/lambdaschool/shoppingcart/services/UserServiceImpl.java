@@ -2,7 +2,11 @@ package com.lambdaschool.shoppingcart.services;
 
 import com.lambdaschool.shoppingcart.exceptions.ResourceFoundException;
 import com.lambdaschool.shoppingcart.exceptions.ResourceNotFoundException;
+import com.lambdaschool.shoppingcart.handlers.HelperFunctions;
+import com.lambdaschool.shoppingcart.models.Cart;
+import com.lambdaschool.shoppingcart.models.Role;
 import com.lambdaschool.shoppingcart.models.User;
+import com.lambdaschool.shoppingcart.models.UserRoles;
 import com.lambdaschool.shoppingcart.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,9 @@ public class UserServiceImpl
 
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private HelperFunctions helperFunctions;
 
     @Override
     public List<User> findAll()
@@ -80,5 +87,55 @@ public class UserServiceImpl
             throw new ResourceFoundException("Carts are not added through users");
         }
         return userrepos.save(newUser);
+    }
+
+    @Transactional
+    @Override
+    public User update(
+            User user,
+            long id) {
+        User currentUser = findUserById(id);
+        if (helperFunctions.isAuthorizedToMakeChanges(currentUser.getUsername())) {
+            if (user.getUsername() != null) {
+                currentUser.setUsername(user.getUsername()
+                        .toLowerCase());
+            }
+
+            if (user.getPassword() != null) {
+                currentUser.setPasswordNoEncrypt(user.getPassword());
+            }
+
+            if (user.getComments() != null) {
+                currentUser.setComments(user.getComments()
+                        .toLowerCase());
+            }
+
+//            if (user.getRoles()
+//                    .size() > 0) {
+//                currentUser.getRoles()
+//                        .clear();
+//                for (UserRoles ur : user.getRoles()) {
+//                    Role addRole = roleService.findRoleById(ur.getRole()
+//                            .getRoleid());
+//
+//                    currentUser.getRoles()
+//                            .add(new UserRoles(currentUser, addRole));
+//                }
+//            }
+
+            if (user.getCarts()
+                    .size() > 0) {
+                currentUser.getCarts()
+                        .clear();
+                for ( Cart c : user.getCarts()) {
+                    currentUser.getCarts()
+                            .add(new Cart());
+                }
+            }
+
+            return userrepos.save(currentUser);
+        } else {
+            throw new ResourceNotFoundException("User not authorized");
+        }
     }
 }

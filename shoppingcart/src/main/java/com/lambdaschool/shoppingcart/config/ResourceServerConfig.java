@@ -1,7 +1,10 @@
 package com.lambdaschool.shoppingcart.config;
 
+import com.lambdaschool.shoppingcart.handlers.HelperFunctions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
@@ -12,6 +15,9 @@ import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHand
 @EnableResourceServer
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     private static final String RESOURCE_ID = "resource_id";
+
+    @Autowired
+    private HelperFunctions helperFunctions;
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources){
@@ -39,6 +45,12 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers("/users/**")
                 .hasAnyRole("ADMIN", "USER")
                 .antMatchers("/roles/**")
+                .hasAnyRole("ADMIN")
+                .antMatchers("/update/cart/**")
+                .hasAnyRole("ADMIN")
+                .antMatchers("/update/cart/**")
+                .authenticated()
+                .antMatchers("/products/**")
                 .hasAnyRole("ADMIN")
                 .and()
                 .exceptionHandling()
